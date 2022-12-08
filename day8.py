@@ -25,8 +25,8 @@ def get_y_trees(matrix, myY):
 
 
 matrix = list()  # [y][x]
-
 visibleMatrix = list()
+
 for i in inp:
     insideList = list()
     visListIns = list()
@@ -42,12 +42,7 @@ flippedMatrix = list()
 for i in range(len(matrix)):
     flippedMatrix.append(get_y_trees(matrix, i))
 
-
-# print(yTreeList)
-#estt = [0, 1, 2, 3, 4, 5]
-#around = lists_around(testt, 5)
-#print("TESTLIST: ", around)
-
+scenicScores = []
 for y in range(len(matrix)):
     lowestTree = 0
     for x in range(len(matrix[y])):
@@ -60,13 +55,6 @@ for y in range(len(matrix)):
             yTrees = flippedMatrix[x]
             aroundX = lists_around(xTrees, x)
             aroundY = lists_around(yTrees, y)
-
-            if x == 1 and y == 2:
-                print("TEEEEEEEEEEEEST")
-                print(aroundX)
-                print(aroundY)
-                print("Height: ", treeH)
-                print("Maxes X: ", max(aroundX[0]), max(aroundX[1]))
 
             visible = bool
             if treeH <= max(aroundX[0]) and treeH <= max(aroundX[1]):
@@ -87,11 +75,26 @@ for y in range(len(matrix)):
             if visible:
                 visibleTrees += 1
 
+            up = aroundY[0]
+            down = aroundY[1]
+            left = aroundX[0]
+            right = aroundX[1]
+            down.reverse()
+            right.reverse()
+            dirLists = [up, left, down, right]
 
-for i in matrix:
-    print(i)
-print("===========================")
-for i in visibleMatrix:
-    print(i)
+            scores = [0,0,0,0]
+            for treeIndex in range(len(dirLists)):
+
+                dirList = dirLists[treeIndex]
+                while len(dirList) > 0:
+                    scores[treeIndex] += 1
+                    if dirList[-1] >= treeH:
+                        break
+                    dirList.pop()
+                    
+                    
+            scenicScores.append(scores[0] * scores[1] * scores[2] * scores[3])
 
 print("Visible trees are: ", visibleTrees)
+print("Highest scenics score is: ", max(scenicScores))

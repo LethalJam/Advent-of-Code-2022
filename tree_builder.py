@@ -33,15 +33,3 @@ def get_all_values_by_name(node: Node, name) -> list:
         values += get_all_values_by_name(c, name)
 
     return values
-
-
-def get_all_values_not_by_name(node: Node, name) -> list:
-
-    values = []
-    if node.name != name:
-        values.append(node.value)
-
-    for c in node.childs:
-        values += get_all_values_by_name(c, name)
-
-    return values

@@ -83,7 +83,7 @@ for y in range(len(matrix)):
             right.reverse()
             dirLists = [up, left, down, right]
 
-            scores = [0,0,0,0]
+            scores = [0, 0, 0, 0]
             for treeIndex in range(len(dirLists)):
 
                 dirList = dirLists[treeIndex]
@@ -92,8 +92,7 @@ for y in range(len(matrix)):
                     if dirList[-1] >= treeH:
                         break
                     dirList.pop()
-                    
-                    
+
             scenicScores.append(scores[0] * scores[1] * scores[2] * scores[3])
 
 print("Visible trees are: ", visibleTrees)

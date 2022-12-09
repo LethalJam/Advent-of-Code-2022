@@ -42,11 +42,17 @@ def part_one():
 
 
 def part_two():
-    head = {'x': 0, 'y': 0}
-    rope = [{'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {
-        'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}]  # 0 is tail, -1 is front
 
-    # tailPositions = [(0, 0)]  # list of tuples
+    rope = [{'x': 0, 'y': 0},
+            {'x': 0, 'y': 0},
+            {'x': 0, 'y': 0},
+            {'x': 0, 'y': 0},
+            {'x': 0, 'y': 0},
+            {'x': 0, 'y': 0},
+            {'x': 0, 'y': 0},
+            {'x': 0, 'y': 0},
+            {'x': 0, 'y': 0},
+            {'x': 0, 'y': 0}]  # 0 is head, -1 is tail
     tailSet = {(0, 0)}
 
     for i in inp:
@@ -55,53 +61,37 @@ def part_two():
         mov = int(cmd[1])
 
         for step in range(mov):
-            headPrevX = head['x']
-            headPrevY = head['y']
+
             # Move Head
             if dirr == 'R':
-                head['x'] += 1
+                rope[0]['x'] += 1
             elif dirr == 'L':
-                head['x'] -= 1
+                rope[0]['x'] -= 1
             elif dirr == 'U':
-                head['y'] += 1
+                rope[0]['y'] += 1
             elif dirr == 'D':
-                head['y'] -= 1
+                rope[0]['y'] -= 1
 
-            # Update Rope
-            front = rope[-1]
-            xDiff = abs(head['x'] - front['x'])
-            yDiff = abs(head['y'] - front['y'])
+            for r in range(len(rope)):
 
-            if xDiff > 1 or yDiff > 1:  # Update position
-                #tail['x'] = headPrevX
-                #tail['y'] = headPrevY
-                headPrevX = front['x']
-                headPrevY = front['y']
-                rope.append({'x': headPrevX, 'y': headPrevY})  # Move front
-                rope.pop(0)  # Move back
+                if r+1 < len(rope):
+                    xDiff = rope[r]['x'] - rope[r+1]['x']
+                    yDiff = rope[r]['y'] - rope[r+1]['y']
 
-                upSet = {(rope[0]['x'], rope[0]['y'])}
-                tailSet.update(upSet)
+                    xDir = -1 if xDiff < 0 else 1
+                    yDir = -1 if yDiff < 0 else 1
+                    if abs(xDiff) > 1 and yDiff == 0:
+                        rope[r+1]['x'] += xDir
+                    elif abs(yDiff) > 1 and xDiff == 0:
+                        rope[r+1]['y'] += yDir
+                    elif abs(xDiff) > 1 or abs(yDiff) > 1:
+                        rope[r+1]['x'] += xDir
+                        rope[r+1]['y'] += yDir
 
-                # for r in rope:
-                #    tailTuple = (r['x'], r['y'])
-                #    if tailTuple not in tailPositions:
-                #        tailPositions.append(tailTuple)
+                else:  # We have reached the tail and finished updates
+                    setUpdate = {(rope[-1]['x'], rope[-1]['y'])}
+                    tailSet.update(setUpdate)
 
-            for i in range(len(rope)):
-                if i+1 < len(rope):
-                    seg1 = rope[0]
-                    seg2 = rope[1]
-
-                    xDiff = abs(seg1['x'] - seg2['x'])
-                    yDiff = abs(seg1['y'] - seg2['y'])
-
-                    if xDiff > 1 or yDiff > 1:
-                        seg2 = rope[i]
-                        headPrevX = seg2['x']
-                        headPrevY = seg2['y']
-
-    print(tailSet)
     print("Number of visited tail positions: ", len(tailSet))
 
 

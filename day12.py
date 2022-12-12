@@ -1,5 +1,3 @@
-from operator import ne
-from re import S
 import parser_util
 
 inp = parser_util.readList("inputs/12.txt", "string", False, False)

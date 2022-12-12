@@ -1,15 +1,16 @@
 from operator import ne
+from re import S
 import parser_util
 
 inp = parser_util.readList("inputs/12.txt", "string", False, False)
 
 
-def print_path(path, grid):
-    print("========= Grid =========")
+def print_closed(closed, grid):
+    print("========= Closed List =========")
     for y in range(len(grid)):
         for x in range(len(grid[y])):
             coord = (y, x)
-            if coord in path:
+            if coord in closed:
                 print("#", end='')
             else:
                 print("X", end='')
@@ -48,25 +49,27 @@ def get_path(cameFrom, start, end):
 
     path = list()
     curr = end
-    while curr != start:
+    while cameFrom[curr] != (-1, -1):
         curr = cameFrom[curr]
         path.append(curr)
     return path
 
 
-def a_star(start, goal, grid):
+def a_star(start, allAs, goal, grid):
 
-    costMap = {start: get_manhattan(start, goal)}
+    costMap = dict()
+    cameFrom = dict()
+    costMap.update({start: get_manhattan(start, goal)})
+    cameFrom.update({start: (-1, -1)})
+
     for y in range(len(grid)):
         for x in range(len(grid[y])):
             if y != 0 and x != 0:
                 costMap.update({(y, x): 99999})
 
-    openList = []
+    openList = [start]
     closedList = []
-    cameFrom = {(0, 0): (-1, -1)}
     path = list()
-    openList.append(start)
 
     while len(openList) > 0:
 
@@ -77,11 +80,16 @@ def a_star(start, goal, grid):
 
         if curr == goal:
             path = get_path(cameFrom, start, curr)
+            if len(allAs) != 0:  # Remove jump from S to best a node
+                path.pop()
             break
         openList.remove(curr)
         closedList.append(curr)
 
         neighb = get_neighbours(curr, len(grid[0])-1, len(grid)-1)
+        if curr == start:  # Add shortcuts to all a nodes
+            neighb += allAs
+
         for nei in neighb:
 
             height = grid[nei[0]][nei[1]]
@@ -90,7 +98,11 @@ def a_star(start, goal, grid):
                 continue
 
             # + height if we use weighted node (heuristic)
-            cost = costMap[curr] + get_manhattan(curr, nei)
+            cost = int()
+            if curr == start and nei in allAs:  # Make movement to other a nodes free
+                cost = costMap[curr] + 0
+            else:
+                cost = costMap[curr] + get_manhattan(curr, nei)
 
             if nei in openList and cost < costMap[nei]:
                 openList.remove(nei)
@@ -101,6 +113,7 @@ def a_star(start, goal, grid):
                 costMap.update({nei: cost})
                 cameFrom.update({nei: curr})
 
+    print_closed(closedList, grid)
     print(path)
     print(len(path))
 
@@ -108,6 +121,7 @@ def a_star(start, goal, grid):
 grid = list()  # [y][x]
 start = (0, 0)  # (y,x)
 goal = (0, 0)  # (y,x)
+allAs = []
 
 for i in range(len(inp)):
     row = list()
@@ -116,16 +130,21 @@ for i in range(len(inp)):
         if newChar == 'S':
             newChar = 'a'
             start = (i, c)
+            #allAs.append((i, c))
         elif newChar == 'E':
             newChar = 'z'
             goal = (i, c)
+        elif newChar == 'a':  # Part 2
+            allAs.append((i, c))
 
         value = abs(ord('a')-ord(newChar))
         row.append(value)
+
     grid.append(row)
 
 
 print("StartPos: ", start)
+print("All a nodes: ", allAs)
 print("Goal: ", goal)
 
-a_star(start, goal, grid)
+a_star(start, allAs, goal, grid)

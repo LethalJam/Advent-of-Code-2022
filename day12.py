@@ -4,6 +4,18 @@ import parser_util
 inp = parser_util.readList("inputs/12.txt", "string", False, False)
 
 
+def print_path(path, grid):
+    print("========= Grid =========")
+    for y in range(len(grid)):
+        for x in range(len(grid[y])):
+            coord = (y, x)
+            if coord in path:
+                print("#", end='')
+            else:
+                print("X", end='')
+        print("")
+
+
 def print_grid(grid):
     print("========= Grid =========")
     for i in grid:
@@ -32,10 +44,28 @@ def get_manhattan(pos, goal) -> int:
     return distY + distX
 
 
+def get_path(cameFrom, start, end):
+
+    path = list()
+    curr = end
+    while curr != start:
+        curr = cameFrom[curr]
+        path.append(curr)
+    return path
+
+
 def a_star(start, goal, grid):
-    costMap = {start: 1 + get_manhattan(start, goal)}
+
+    costMap = {start: get_manhattan(start, goal)}
+    for y in range(len(grid)):
+        for x in range(len(grid[y])):
+            if y != 0 and x != 0:
+                costMap.update({(y, x): 99999})
+
     openList = []
     closedList = []
+    cameFrom = {(0, 0): (-1, -1)}
+    path = list()
     openList.append(start)
 
     while len(openList) > 0:
@@ -46,35 +76,33 @@ def a_star(start, goal, grid):
                 curr = n
 
         if curr == goal:
-            break  # closedList is now the path
+            path = get_path(cameFrom, start, curr)
+            break
         openList.remove(curr)
         closedList.append(curr)
 
         neighb = get_neighbours(curr, len(grid[0])-1, len(grid)-1)
         for nei in neighb:
 
-            # print(nei)
             height = grid[nei[0]][nei[1]]
             climb = height - grid[curr[0]][curr[1]]
-            if nei in closedList or climb > 1:  # If elevation higher than 1, dont consider
+            if nei in closedList or climb > 1:  # Already considered or too high
                 continue
 
             # + height if we use weighted node (heuristic)
-            cost = costMap[curr] + get_manhattan(nei, goal) + height
+            cost = costMap[curr] + get_manhattan(curr, nei)
 
-            if nei in openList:
-                if cost < costMap[nei]:
-                    openList.remove(nei)  # Better cost to nei found
-            if nei in closedList:
-                if cost < costMap[nei]:
-                    closedList.remove(nei)
+            if nei in openList and cost < costMap[nei]:
+                openList.remove(nei)
+            if nei in closedList and cost < costMap[nei]:
+                closedList.remove(nei)
             if nei not in openList and nei not in closedList:
                 openList.append(nei)
                 costMap.update({nei: cost})
-                # h(n)
-                # f(n)
-    print(closedList)
-    print(len(closedList))
+                cameFrom.update({nei: curr})
+
+    print(path)
+    print(len(path))
 
 
 grid = list()  # [y][x]
@@ -96,7 +124,7 @@ for i in range(len(inp)):
         row.append(value)
     grid.append(row)
 
-print_grid(grid)
+
 print("StartPos: ", start)
 print("Goal: ", goal)
 
